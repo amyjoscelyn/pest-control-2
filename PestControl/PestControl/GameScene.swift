@@ -58,6 +58,14 @@ class GameScene: SKScene {
     {
       self.timeLimit = timeLimit
     }
+    
+    addObservers()
+  }
+  
+  // If app targets iOS 9 or later, there's no need to explicitly unregister observers when the observers are deallocated. But it doesn't hurt!
+  deinit
+  {
+    NotificationCenter.default.removeObserver(self)
   }
 
   override func didMove(to view: SKView) {
@@ -94,6 +102,20 @@ class GameScene: SKScene {
       transitionToScene(level: currentLevel + 1)
     case .lose:
       transitionToScene(level: 1) //for testing make this currentLevel
+    case .reload:
+      if let touchedNode = atPoint(touch.location(in: self)) as? SKLabelNode
+      {
+        if touchedNode.name == HUDMessages.yes
+        {
+          isPaused = false
+          startTime = nil
+          gameState = .play
+        }
+        else if touchedNode.name == HUDMessages.no
+        {
+          transitionToScene(level: 1)
+        }
+      }
     default:
       break
     }
@@ -377,5 +399,52 @@ extension GameScene : SKPhysicsContactDelegate {
         player.checkDirection()
       }
     }
+  }
+}
+
+//MARK: -Notifications
+extension GameScene
+{
+  func applicationDidBecomeActive()
+  {
+    print("* applicationDidBecomeActive")
+    if gameState == .pause
+    {
+      gameState = .reload
+    }
+  }
+  
+  func applicationWillResignActive()
+  {
+    print("* applicationWillResignActive")
+    isPaused = true
+    if gameState != .lose
+    {
+      gameState = .pause
+    }
+  }
+  
+  func applicationDidEnterBackground()
+  {
+    print("* applicationDidEnterBackground")
+  }
+  
+  func addObservers()
+  {
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(applicationDidBecomeActive),
+      name: .UIApplicationDidBecomeActive,
+      object: nil)
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(applicationWillResignActive),
+      name: .UIApplicationWillResignActive,
+      object: nil)
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(applicationDidEnterBackground),
+      name: .UIApplicationDidEnterBackground,
+      object: nil)
   }
 }
