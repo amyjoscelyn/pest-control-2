@@ -402,7 +402,7 @@ extension GameScene : SKPhysicsContactDelegate {
   }
 }
 
-//MARK: -Notifications
+//MARK: – Notifications
 extension GameScene
 {
   func applicationDidBecomeActive()
@@ -427,6 +427,10 @@ extension GameScene
   func applicationDidEnterBackground()
   {
     print("* applicationDidEnterBackground")
+    if gameState != .lose
+    {
+      saveGame()
+    }
   }
   
   func addObservers()
@@ -446,5 +450,32 @@ extension GameScene
       selector: #selector(applicationDidEnterBackground),
       name: .UIApplicationDidEnterBackground,
       object: nil)
+  }
+}
+
+//MARK: – Saving Games
+extension GameScene
+{
+  func saveGame()
+  {
+    let fileManager = FileManager.default
+    guard let directory = fileManager.urls(for: .libraryDirectory,
+                                           in: .userDomainMask).first
+      else { return }
+    
+    let saveURL = directory.appendingPathComponent("SavedGames")
+    
+    do
+    {
+      try fileManager.createDirectory(atPath: saveURL.path, withIntermediateDirectories: true, attributes: nil)
+    } catch let error as NSError
+    {
+      fatalError("Failed to create directory: \(error.debugDescription)")
+    }
+    
+    let fileURL = saveURL.appendingPathComponent("saved-game")
+    print("* Saving: \(fileURL.path)") //useful; so you can later locate it in the file system
+    
+    NSKeyedArchiver.archiveRootObject(self, toFile: fileURL.path)
   }
 }
