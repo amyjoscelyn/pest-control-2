@@ -31,8 +31,10 @@ class Bug: SKSpriteNode {
   
   var animations: [SKAction] = []
 
-  required init?(coder aDecoder: NSCoder) {
-    fatalError("Use init()")
+  required init?(coder aDecoder: NSCoder)
+  {
+    super.init(coder: aDecoder)
+    animations = aDecoder.decodeObject(forKey: "Bug.animations") as! [SKAction]
   }
   
   init() {
@@ -49,7 +51,7 @@ class Bug: SKSpriteNode {
     createAnimations(character: "bug")
   }
   
-  func move() {
+  func moveBug() {
     // 1
     let randomX = CGFloat(Int.random(min: -1, max: 1))
     let randomY = CGFloat(Int.random(min: -1, max: 1))
@@ -58,7 +60,8 @@ class Bug: SKSpriteNode {
                           dy: randomY * BugSettings.bugDistance)
     // 2
     let moveBy = SKAction.move(by: vector, duration: 1)
-    let moveAgain = SKAction.run(move)
+    let moveAgain = SKAction.perform(#selector(moveBug),
+                                     onTarget: self)
     
     // 1
     let direction = animationDirection(for: vector)
@@ -83,7 +86,7 @@ class Bug: SKSpriteNode {
     physicsBody = nil
     // 3
     run(SKAction.sequence([SKAction.fadeOut(withDuration: 3),
-                           SKAction.run(removeFromParent)]))
+                           SKAction.removeFromParent()]))
   }
 
   override func encode(with aCoder: NSCoder)

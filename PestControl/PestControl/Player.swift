@@ -36,8 +36,16 @@ class Player: SKSpriteNode {
     }
   }
 
-  required init?(coder aDecoder: NSCoder) {
-    fatalError("Use init()")
+  required init?(coder aDecoder: NSCoder)
+  {
+    super.init(coder: aDecoder)
+    animations = aDecoder.decodeObject(forKey: "Player.animations") as! [SKAction]
+    hasBugspray = aDecoder.decodeBool(forKey: "Player.hasBugspray")
+    if hasBugspray
+    {
+      removeAction(forKey: "blink")
+      blink(color: .green, on: hasBugspray)
+    }
   }
   
   init() {

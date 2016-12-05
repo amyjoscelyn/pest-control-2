@@ -25,12 +25,16 @@ import SpriteKit
 
 class GameViewController: UIViewController {
   
-  override func viewDidLoad() {
+  override func viewDidLoad()
+  {
     super.viewDidLoad()
     
-    if let view = self.view as! SKView? {
+    if let view = self.view as! SKView?
+    {
       // Load the SKScene from 'GameScene.sks'
-      if let scene = SKScene(fileNamed: "Level1") {
+      if let scene = GameScene.loadGame()
+        ?? SKScene(fileNamed: "Level1") as? GameScene
+      {
         scene.scaleMode = .resizeFill
         
         // Present the scene

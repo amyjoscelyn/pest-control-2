@@ -59,6 +59,20 @@ class GameScene: SKScene {
       self.timeLimit = timeLimit
     }
     
+    let savedGameState = aDecoder.decodeInteger(forKey: "Scene.gameState")
+    if let gameState = GameState(rawValue: savedGameState), gameState == .pause
+    {
+      self.gameState = gameState
+      firebugCount = aDecoder.decodeInteger(forKey: "Scene.firebugCount")
+      elapsedTime = aDecoder.decodeInteger(forKey: "Scene.elapsedTime")
+      currentLevel = aDecoder.decodeInteger(forKey: "Scene.currenLevel")
+      
+      player = childNode(withName: "Player") as! Player
+      hud = camera!.childNode(withName: "HUD") as! HUD
+      bugsNode = childNode(withName: "Bugs")!
+      bugsprayTileMap = childNode(withName: "Bugspray") as? SKTileMapNode
+    }
+    
     addObservers()
   }
   
@@ -68,20 +82,23 @@ class GameScene: SKScene {
     NotificationCenter.default.removeObserver(self)
   }
 
-  override func didMove(to view: SKView) {
-    addChild(player)
-    setupCamera()
-    setupWorldPhysics()
-    
-    createBugs()
-    setupObstaclePhysics()
-    
-    if firebugCount > 0 {
-      createBugspray(quantity: firebugCount + 10)
+  override func didMove(to view: SKView)
+  {
+    if gameState == .initial
+    {
+      addChild(player)
+      setupWorldPhysics()
+      createBugs()
+      setupObstaclePhysics()
+      
+      if firebugCount > 0
+      {
+        createBugspray(quantity: firebugCount + 10)
+      }
+      setupHud()
+      gameState = .start
     }
-    
-    setupHud()
-    gameState = .start
+    setupCamera()
   }
   
   override func touchesBegan(_ touches: Set<UITouch>,
@@ -204,7 +221,7 @@ class GameScene: SKScene {
         bug.position = bugsMap.centerOfTile(atColumn: column,
                                             row: row)
         bugsNode.addChild(bug)
-        bug.move()
+        bug.moveBug()
       }
     }
     // 4
@@ -490,5 +507,26 @@ extension GameScene
     aCoder.encode(currentLevel,
                   forKey: "Scene.currentLevel")
     super.encode(with: aCoder)
+  }
+  
+  // a factory method to load a saved game if it exists
+  class func loadGame() -> SKScene?
+  {
+    print("* loading game")
+    var scene: SKScene?
+    
+    let fileManager = FileManager.default
+    guard let directory = fileManager.urls(for: .libraryDirectory,
+                                            in: .userDomainMask).first
+      else { return nil }
+    
+    let url = directory.appendingPathComponent("SavedGames/saved-game")
+    
+    if FileManager.default.fileExists(atPath: url.path)
+    {
+      scene = NSKeyedUnarchiver.unarchiveObject(withFile: url.path) as? GameScene
+      _ = try? fileManager.removeItem(at: url)
+    }
+    return scene
   }
 }
