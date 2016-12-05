@@ -478,4 +478,17 @@ extension GameScene
     
     NSKeyedArchiver.archiveRootObject(self, toFile: fileURL.path)
   }
+  
+  override func encode(with aCoder: NSCoder)
+  {
+    aCoder.encode(firebugCount,
+                  forKey: "Scene.firebugCount")
+    aCoder.encode(elapsedTime,
+                  forKey: "Scene.elapsedTime")
+    aCoder.encode(gameState.rawValue,
+                  forKey: "Scene.gameState")
+    aCoder.encode(currentLevel,
+                  forKey: "Scene.currentLevel")
+    super.encode(with: aCoder)
+  }
 }

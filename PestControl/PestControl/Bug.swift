@@ -86,6 +86,11 @@ class Bug: SKSpriteNode {
                            SKAction.run(removeFromParent)]))
   }
 
+  override func encode(with aCoder: NSCoder)
+  {
+    aCoder.encode(animations, forKey: "Bug.animations")
+    super.encode(with: aCoder)
+  }
 }
 
 extension Bug : Animatable {}
