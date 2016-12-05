@@ -29,6 +29,7 @@ enum HUDMessages
 class HUD: SKNode
 {
   var timerLabel: SKLabelNode?
+  var bugCountLabel: SKLabelNode?
   
   override init()
   {
@@ -40,6 +41,7 @@ class HUD: SKNode
   {
     super.init(coder: aDecoder)
     timerLabel = childNode(withName: "Timer") as? SKLabelNode
+    bugCountLabel = childNode(withName: "Bug Counter") as? SKLabelNode
   }
   
   func add(message: String, position: CGPoint, fontSize: CGFloat = HUDSettings.fontSize)
@@ -74,6 +76,26 @@ class HUD: SKNode
     timerLabel?.verticalAlignmentMode = .top
     timerLabel?.fontName = "Menlo"
     updateTimer(time: time)
+  }
+  
+  func updateBugCounter(bugCount: Int)
+  {
+    let bugText = String(format: "Bugs: %02d", bugCount)
+    bugCountLabel?.text = bugText
+  }
+  
+  func addBugCounter(bugCount: Int)
+  {
+    guard let scene = scene else { return }
+    
+    let position = CGPoint(x: scene.frame.size.width/2 - 30, y: scene.frame.size.height/2 - 10)
+    add(message: "Bug Counter", position: position, fontSize: 24)
+    
+    bugCountLabel = childNode(withName: "Bug Counter") as? SKLabelNode
+    bugCountLabel?.verticalAlignmentMode = .top
+    bugCountLabel?.horizontalAlignmentMode = .right
+    bugCountLabel?.fontName = "Menlo"
+    updateBugCounter(bugCount: bugCount)
   }
   
   func updateGameState(from: GameState, to: GameState)

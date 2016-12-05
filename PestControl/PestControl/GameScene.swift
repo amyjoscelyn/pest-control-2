@@ -95,7 +95,7 @@ class GameScene: SKScene {
       {
         createBugspray(quantity: firebugCount + 10)
       }
-      setupHud()
+      setupHUD()
       gameState = .start
     }
     setupCamera()
@@ -332,11 +332,12 @@ class GameScene: SKScene {
     }
   }
 
-  func setupHud()
+  func setupHUD()
   {
     //adding to camera ensures it's always in the same place on the screen, and not where the scene is currently at
     camera?.addChild(hud)
     hud.addTimer(time: timeLimit)
+    hud.addBugCounter(bugCount: bugsNode.children.count)
   }
   
   func updateHUD(currentTime: TimeInterval)
@@ -381,6 +382,7 @@ extension GameScene : SKPhysicsContactDelegate {
     bug.removeFromParent()
     background.addChild(bug)
     bug.die()
+    hud.updateBugCounter(bugCount: bugsNode.children.count)
   }
 
   func didBegin(_ contact: SKPhysicsContact) {
